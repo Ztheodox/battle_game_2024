@@ -11,9 +11,11 @@ CannonBall::CannonBall(GameCore *core,
                        glm::vec2 position,
                        float rotation,
                        float damage_scale,
-                       glm::vec2 velocity)
+                       glm::vec2 velocity,
+                       float angular_velocity,
+                       uint32_t lifetime)
     : Bullet(core, id, unit_id, player_id, position, rotation, damage_scale),
-      velocity_(velocity) {
+      velocity_(velocity), angular_velocity_(angular_velocity), lifetime_(lifetime) {
 }
 
 void CannonBall::Render() {
@@ -25,8 +27,10 @@ void CannonBall::Render() {
 
 void CannonBall::Update() {
   position_ += velocity_ * kSecondPerTick;
+  velocity_ = Rotate(velocity_, angular_velocity_ * kSecondPerTick);
+  rotation_ += angular_velocity_ * kSecondPerTick;
   bool should_die = false;
-  if (game_core_->IsBlockedByObstacles(position_)) {
+  if (game_core_->IsBlockedByObstacles(position_) || lifetime_ == time_++) {
     should_die = true;
   }
 
